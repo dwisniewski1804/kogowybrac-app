@@ -10,31 +10,25 @@ kogowybrac/
         infra/                # db, cache, auth, search adapters
       Dockerfile
 
-    ingestion/                # raw -> json
+    ingestion/                # raw -> SQL staging
       src/
         sources/              # sejm, pkw, factcheck...
         fetch/                # http clients, retry
         extract/              # pdf/html parsing + OCR hooks
-        write/                # write raw + jsonl
+        write/                # write raw (S3) + SQL staging (PostgreSQL)
         provenance/           # snapshot refs, hashes
       Dockerfile
 
-    transform/                # json -> parquet (batch jobs)
-      src/
-        schemas/              # parquet schemas
-        jobs/
-      Dockerfile
-
-    warehouse/                # parquet -> SQL + dbt-style layers
+    warehouse/                # SQL staging -> intermediate -> mart -> exposures (dbt)
       sql/
         staging/
         intermediate/
         mart/
         exposures/
       tests/
-      (dbt_project.yml)       # opcjonalnie, jeśli użyjesz dbt
+      (dbt_project.yml)       # optional, if using dbt
 
-    web/                      # opcjonalnie landing/SEO (później)
+    web/                      # optional landing/SEO (later)
       ...
 
   mobile/
@@ -46,13 +40,13 @@ kogowybrac/
       v1/
         openapi.yaml
         schemas/
-    common/                   # opcjonalnie: shared types, provenance spec
+    common/                   # optional: shared types, provenance spec
 
   infra/
     docker/
       compose.yml
-    k8s/                      # opcjonalnie
-    terraform/                # opcjonalnie
+    k8s/                      # optional
+    terraform/                # optional
 
   docs/
     architecture/
@@ -63,10 +57,8 @@ kogowybrac/
       sources.md
       licensing.md
 
-  data/                       # lokalnie / w dev; w prod raczej storage (S3)
-    raw/
-    json/
-    parquet/
+  data/                       # locally / in dev; in prod likely storage (S3)
+    raw/                      # RAW snapshots (backup/reference)
 
   Makefile
   README.md

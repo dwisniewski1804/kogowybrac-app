@@ -26,8 +26,6 @@ Thumbs.db
 
 # Data (local dev)
 data/raw/
-data/json/
-data/parquet/
 
 # Logs
 *.log

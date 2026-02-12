@@ -1,32 +1,29 @@
 # Tech Stack – MVP
 kogowybrac.app
 
-Dokument opisuje minimalny, produkcyjnie sensowny stack technologiczny
-dla pierwszej wersji (MVP).
+This document describes the minimal, production-ready technology stack for the first version (MVP).
 
-Założenia:
+Assumptions:
 - Monorepo
 - Mobile-first
-- Pipeline: RAW → JSON → PARQUET → SQL
-- API czyta wyłącznie z warstwy exposures
-- Minimalna infrastruktura
-- Brak nadmiarowej złożoności
+- Pipeline: RAW → SQL staging → SQL intermediate → exposures → API → Front
+- API reads exclusively from the exposures layer
+- Minimal infrastructure
+- No unnecessary complexity
 
 ---
 
-# 1. Architektura wysokiego poziomu
+# 1. High-level Architecture
 
-Źródła publiczne  
+Public sources  
 ↓  
 Python ingestion  
 ↓  
-RAW (S3/MinIO)  
+RAW (S3/MinIO) + SQL staging (PostgreSQL)  
 ↓  
-JSONL  
+SQL intermediate (dbt)  
 ↓  
-Parquet  
-↓  
-PostgreSQL + dbt (staging → intermediate → mart → exposures)  
+SQL exposures (dbt)  
 ↓  
 Node.js API  
 ↓  
@@ -38,18 +35,19 @@ Mobile (Android / iOS)
 
 ## Python
 
-Dlaczego:
-- najlepsze narzędzia do scraping/OCR/PDF
-- świetne wsparcie dla Parquet (pyarrow, polars)
-- szybki development
+Why:
+- best tools for scraping/OCR/PDF
+- direct write to PostgreSQL (psycopg)
+- fast development
 
-Odpowiedzialność:
-- fetch danych (Sejm, PKW, itd.)
-- snapshot RAW
-- ekstrakcja do JSONL
-- zapis provenance (source_url, fetched_at, hash)
+Responsibilities:
+- fetch data (Sejm, PKW, etc.)
+- RAW snapshot (S3/MinIO)
+- extraction and parsing (HTML/PDF)
+- direct write to SQL staging (PostgreSQL)
+- provenance recording (source_url, fetched_at, hash)
 
-Struktura:
+Structure:
 
     apps/ingestion/
 
@@ -59,19 +57,15 @@ Struktura:
 
 ## Object Storage
 
-- MinIO (lokalnie)
-- S3-compatible w produkcji
+- MinIO (locally)
+- S3-compatible in production
 
-Przechowuje:
-- raw snapshots
-- json records
-- parquet datasets
+Stores:
+- raw snapshots (backup/reference)
 
-Struktura:
+Structure:
 
     raw/
-    json/
-    parquet/
 
 ---
 
@@ -79,28 +73,29 @@ Struktura:
 
 ## PostgreSQL
 
-Rola:
+Role:
 - data warehouse
-- read model dla API
+- read model for API
 
 ## dbt
 
-Rola:
-- staging
-- intermediate
-- mart
-- exposures
+Role:
+- intermediate (transformations from staging)
+- mart (business aggregations)
+- exposures (read model for API)
 
-Struktura:
+Note: staging is written directly by ingestion to PostgreSQL.
+
+Structure:
 
     apps/warehouse/sql/
-      staging/
-      intermediate/
-      mart/
-      exposures/
+      staging/        # source: ingestion writes directly
+      intermediate/   # dbt: transformations
+      mart/           # dbt: business models
+      exposures/      # dbt: read model for API
 
-Zasada:
-API czyta wyłącznie z exposures.
+Principle:
+API reads exclusively from exposures.
 
 ---
 
@@ -108,18 +103,18 @@ API czyta wyłącznie z exposures.
 
 ## Node.js + Fastify
 
-Dlaczego:
-- szybkie development tempo
-- dobre wsparcie OpenAPI
-- łatwe deploye (VPS / Docker)
+Why:
+- fast development pace
+- good OpenAPI support
+- easy deployment (VPS / Docker)
 
 API:
 - REST
-- OpenAPI v1 jako kontrakt
+- OpenAPI v1 as contract
 - Email-only auth (magic link)
 - District scope enforced
 
-Struktura:
+Structure:
 
     apps/api/
 
@@ -129,11 +124,11 @@ Struktura:
 
 ## Redis
 
-Użycie:
-- cache zapytań
+Usage:
+- query cache
 - rate limiting
-- tokeny sesji
-- ewentualnie job queue (BullMQ)
+- session tokens
+- optionally job queue (BullMQ)
 
 ---
 
@@ -146,15 +141,15 @@ Użycie:
 - Swift
 
 Mobile:
-- komunikuje się wyłącznie przez API
-- zna tylko DTO
-- nie zna SQL ani warehouse
+- communicates exclusively through API
+- knows only DTOs
+- does not know SQL or warehouse
 
 ---
 
 # 8. Monorepo
 
-Struktura:
+Structure:
 
 ```
 apps/
@@ -170,13 +165,13 @@ infra/
 docs/
 ```
 
-Kontrakty API:
+API contracts:
 
     packages/contracts/v1/openapi.yaml
 
 ---
 
-# 9. Infrastruktura MVP
+# 9. MVP Infrastructure
 
 Docker Compose:
 
@@ -187,52 +182,52 @@ Docker Compose:
 - ingestion (manual run)
 
 Deploy:
-- 1 VPS (na start)
+- 1 VPS (to start)
 - Docker
 - Reverse proxy (Caddy / Nginx)
 
 ---
 
-# 10. Czego NIE robimy w MVP
+# 10. What we DON'T do in MVP
 
-- brak search engine
-- brak scoringu kandydatów
-- brak rankingów
-- brak interpretacji
-- brak pełnego OCR (na start tylko metadane PDF)
+- no search engine
+- no candidate scoring
+- no rankings
+- no interpretation
+- no full OCR (initially only PDF metadata)
 
 ---
 
 # 11. MVP Scope
 
-MVP zawiera:
+MVP includes:
 
-- wybór okręgu
-- lista kandydatów w okręgu
-- podstawowy profil
-- link do oświadczeń majątkowych
-- wyniki historyczne
+- district selection
+- list of candidates in district
+- basic profile
+- link to asset declarations
+- historical results
 
-Bez:
-- zaawansowanej analityki
-- rozbudowanego NLP
-- rekomendacji wyborczych
+Without:
+- advanced analytics
+- extensive NLP
+- electoral recommendations
 
 ---
 
-# 12. Dlaczego ten stack?
+# 12. Why this stack?
 
-✔ Minimalna złożoność  
-✔ Szybkie MVP  
-✔ Skalowalne  
-✔ Zgodne z architekturą data-first  
-✔ Łatwe do utrzymania solo  
+✔ Minimal complexity  
+✔ Fast MVP  
+✔ Scalable  
+✔ Aligned with data-first architecture  
+✔ Easy to maintain solo  
 
 ---
 
 # Status
 
-Stack zatwierdzony dla MVP.
-Rozbudowa możliwa w kolejnych iteracjach.
+Stack approved for MVP.
+Expansion possible in subsequent iterations.
 
-Szczegóły decyzji: docs/architecture/adrs/adr-0001-tech-stack-mvp.md
+Decision details: docs/architecture/adrs/adr-0001-tech-stack-mvp.md

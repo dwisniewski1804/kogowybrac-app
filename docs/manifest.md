@@ -1,59 +1,56 @@
 # Manifest – kogowybrac.app
 
-## Misja
+## Mission
 
-Umożliwić obywatelom podejmowanie świadomych decyzji wyborczych poprzez
-udostępnienie rzetelnych, zweryfikowanych i źródłowych danych o kandydatach
-w kontekście ich okręgu wyborczego.
+Enable citizens to make informed electoral decisions by providing reliable, verified, and source-based data about candidates in the context of their electoral district.
 
 ---
 
-## Zasady
+## Principles
 
-### 1. Fakty ponad narrację
-Nie interpretujemy.
-Nie oceniamy.
-Nie rekomendujemy.
+### 1. Facts over narrative
+We do not interpret.
+We do not evaluate.
+We do not recommend.
 
-Pokazujemy dane + źródło.
+We show data + source.
 
 ---
 
-### 2. Kontekst okręgu
-Użytkownik widzi wyłącznie kandydatów ze swojego okręgu.
-Brak globalnych rankingów.
+### 2. District context
+Users see only candidates from their district.
+No global rankings.
 
 ---
 
 ### 3. Provenance
-Każda informacja posiada:
-- źródło
-- datę pobrania
-- referencję snapshotu
+Every piece of information has:
+- source
+- fetch date
+- snapshot reference
 
 ---
 
-### 4. Minimalizm prywatności
-Przechowujemy wyłącznie:
+### 4. Privacy minimalism
+We store only:
 - email
-- wybrany okręg
+- selected district
 
-Brak profilowania.
-Brak danych wrażliwych.
-
----
-
-### 5. Transparentna metodologia
-Jeżeli w przyszłości pojawią się wskaźniki lub agregacje,
-metodologia ich liczenia będzie publiczna.
+No profiling.
+No sensitive data.
 
 ---
 
-## Czym NIE jesteśmy
+### 5. Transparent methodology
+If indicators or aggregations appear in the future, their calculation methodology will be public.
 
-- Nie jesteśmy portalem opiniotwórczym.
-- Nie jesteśmy komitetem wyborczym.
-- Nie jesteśmy platformą agitacyjną.
-- Nie sugerujemy, na kogo głosować.
+---
 
-Decyzja należy do użytkownika.
+## What we are NOT
+
+- We are not an opinion portal.
+- We are not an electoral committee.
+- We are not an agitation platform.
+- We do not suggest who to vote for.
+
+The decision belongs to the user.

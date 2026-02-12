@@ -1,42 +1,38 @@
 # kogowybrac.app
 
-Transparentna platforma danych publicznych o kandydatach wyborczych.
+Transparent platform for public data about electoral candidates.
 
-Projekt umożliwia przeglądanie kandydatów wyłącznie w kontekście
-wybranego okręgu wyborczego.
+The project enables browsing candidates exclusively in the context of a selected electoral district.
 
 ---
 
-## Architektura
+## Architecture
 
-Pipeline danych:
+Data pipeline:
 
-RAW → JSON → PARQUET → SQL (staging → intermediate → mart → exposures)
+RAW → SQL staging → SQL intermediate → exposures → API → Front
 
-API czyta wyłącznie z warstwy exposures.
+API reads exclusively from the exposures layer.
 
-Mobile komunikuje się wyłącznie z API.
+Mobile communicates exclusively through API.
 
-Szczegóły:
+Details:
 - docs/project_structure.md
 - docs/manifest.md
 - docs/c4.md
 
 ---
 
-## Główne komponenty
+## Main Components
 
 ### Ingestion
-Pobiera dane publiczne i zapisuje snapshoty.
-
-### Transform
-Konwertuje dane do Parquet.
+Fetches public data, saves RAW snapshots and writes directly to SQL staging.
 
 ### Warehouse
-Buduje modele SQL i widoki exposures.
+Builds SQL models (intermediate → mart → exposures) using dbt.
 
 ### API
-Udostępnia dane aplikacjom mobilnym.
+Provides data to mobile applications.
 
 ### Mobile
 Android (Kotlin)
@@ -44,26 +40,26 @@ iOS (Swift)
 
 ---
 
-## Prywatność
+## Privacy
 
-System przechowuje wyłącznie:
-- email użytkownika
-- wybrany okręg
+The system stores only:
+- user email
+- selected district
 
-Brak profilowania.
-Brak danych wrażliwych.
+No profiling.
+No sensitive data.
 
 ---
 
-## Zasady
+## Principles
 
-- Fakty + źródło
-- Brak interpretacji
-- Brak rankingów
-- Brak rekomendacji wyborczych
+- Facts + source
+- No interpretation
+- No rankings
+- No electoral recommendations
 
 ---
 
 ## Status
 
-Projekt w fazie architektury i budowy pipeline danych.
+Project in architecture and data pipeline construction phase.

@@ -2,127 +2,127 @@
 
 **Status:** Accepted  
 **Date:** 2026-02-12  
-**Context:** Wybór stosu technologicznego dla pierwszej wersji (MVP) platformy kogowybrac.app.
+**Context:** Technology stack selection for the first version (MVP) of the kogowybrac.app platform.
 
 ---
 
-## Kontekst
+## Context
 
-Potrzebujemy minimalnego, produkcyjnie sensownego stacku dla MVP.
-Kluczowe wymagania:
+We need a minimal, production-ready stack for MVP.
+Key requirements:
 - Monorepo
 - Mobile-first
-- Pipeline danych: RAW → JSON → PARQUET → SQL
-- API czyta wyłącznie z warstwy exposures
-- Łatwe do utrzymania solo-developer
-- Szybkie MVP
+- Data pipeline: RAW → SQL staging → SQL intermediate → exposures → API → Front
+- API reads exclusively from the exposures layer
+- Easy to maintain solo-developer
+- Fast MVP
 
 ---
 
-## Decyzja
+## Decision
 
 ### Ingestion Layer → Python 3.12+
 
-| Biblioteka | Rola |
+| Library | Role |
 |---|---|
 | httpx | HTTP client (async, retry) |
 | beautifulsoup4 | HTML parsing |
 | pdfplumber | PDF extraction |
-| polars | DataFrame + Parquet write |
-| pyarrow | Parquet I/O |
+| psycopg | PostgreSQL driver (direct write to staging) |
 
-Uzasadnienie: najlepsze narzędzia do scraping/OCR/PDF, świetne wsparcie Parquet.
+Rationale: best tools for scraping/OCR/PDF, direct write to PostgreSQL eliminates intermediate layer.
 
 ### Backend API → Node.js 22 LTS + TypeScript
 
-| Biblioteka | Rola |
+| Library | Role |
 |---|---|
 | fastify | HTTP framework |
 | @fastify/swagger | OpenAPI docs |
 | drizzle-orm | SQL query builder (type-safe) |
 | pg | PostgreSQL driver |
 | ioredis | Redis client |
-| zod | Walidacja DTO |
+| zod | DTO validation |
 
-Uzasadnienie: szybkie tempo developmentu, dobre wsparcie OpenAPI, łatwy deploy.
+Rationale: fast development pace, good OpenAPI support, easy deployment.
 
 ### Warehouse → PostgreSQL 16 + dbt-core
 
-| Narzędzie | Rola |
+| Tool | Role |
 |---|---|
 | PostgreSQL 16 | Data warehouse + read model |
-| dbt-core | Transformacje SQL (staging → intermediate → mart → exposures) |
-| dbt-postgres | Adapter dbt dla PostgreSQL |
+| dbt-core | SQL transformations (staging → intermediate → mart → exposures) |
+| dbt-postgres | dbt adapter for PostgreSQL |
 
-Uzasadnienie: SQL jako single source of truth, dbt daje testowalność i lineage.
+Rationale: SQL as single source of truth, dbt provides testability and lineage.
 
 ### Cache / Background → Redis 7
 
-| Użycie | Opis |
+| Usage | Description |
 |---|---|
-| Cache | Cache zapytań API |
-| Rate limiting | Ochrona endpointów |
-| Sesje | Tokeny sesji (magic link auth) |
+| Cache | API query cache |
+| Rate limiting | Endpoint protection |
+| Sessions | Session tokens (magic link auth) |
 
 ### Object Storage → MinIO (dev) / S3-compatible (prod)
 
-Przechowuje: raw snapshots, json records, parquet datasets.
+Stores: raw snapshots (backup/reference).
 
 ### Mobile
 
-| Platforma | Język |
+| Platform | Language |
 |---|---|
 | Android | Kotlin |
 | iOS | Swift |
 
-Mobile komunikuje się wyłącznie przez API, zna tylko DTO.
+Mobile communicates exclusively through API, knows only DTOs.
 
-### Infrastruktura MVP
+### MVP Infrastructure
 
-| Komponent | Technologia |
+| Component | Technology |
 |---|---|
-| Orkiestracja | Docker Compose |
+| Orchestration | Docker Compose |
 | Reverse proxy | Caddy |
 | Deploy | 1 VPS |
-| CI | GitHub Actions (później) |
+| CI | GitHub Actions (later) |
 
-### Kontrakty
+### Contracts
 
-| Artefakt | Format |
+| Artifact | Format |
 |---|---|
 | API contract | OpenAPI 3.1 (packages/contracts/v1/) |
 | Schemas | JSON Schema |
 
 ---
 
-## Czego NIE robimy w MVP
+## What we DON'T do in MVP
 
-- Brak search engine (Elasticsearch/Meilisearch)
-- Brak scoringu kandydatów
-- Brak rankingów
-- Brak interpretacji
-- Brak pełnego OCR (na start tylko metadane PDF)
-- Brak zaawansowanego NLP
-- Brak rekomendacji wyborczych
-
----
-
-## Konsekwencje
-
-- Python + Node.js = dwa runtime'y, ale każdy robi to, w czym jest najlepszy
-- PostgreSQL jako jedyna baza = prostota operacyjna
-- dbt wymaga znajomości SQL, ale daje pełną transparentność transformacji
-- Monorepo wymaga dyscypliny, ale ułatwia zarządzanie kontraktami
-- Redis dodaje komponent, ale cache jest kluczowy dla performance
+- No search engine (Elasticsearch/Meilisearch)
+- No candidate scoring
+- No rankings
+- No interpretation
+- No full OCR (initially only PDF metadata)
+- No advanced NLP
+- No electoral recommendations
 
 ---
 
-## Alternatywy rozważane
+## Consequences
 
-| Opcja | Powód odrzucenia |
+- Python + Node.js = two runtimes, but each does what it's best at
+- PostgreSQL as the only database = operational simplicity
+- No JSON/Parquet layer = simpler pipeline, fewer components
+- Ingestion writes directly to SQL = faster, fewer steps
+- dbt requires SQL knowledge, but provides full transformation transparency
+- Monorepo requires discipline, but facilitates contract management
+- Redis adds a component, but cache is crucial for performance
+
+---
+
+## Alternatives Considered
+
+| Option | Reason for rejection |
 |---|---|
-| Python (FastAPI) jako API | Node.js lepszy ekosystem dla REST + OpenAPI + frontend |
-| MongoDB | Brak relacji, słabe dla warehouse |
-| Kafka | Overkill dla MVP |
-| Kubernetes | Overkill — 1 VPS + Docker Compose wystarczy |
-
+| Python (FastAPI) as API | Node.js has better ecosystem for REST + OpenAPI + frontend |
+| MongoDB | No relations, weak for warehouse |
+| Kafka | Overkill for MVP |
+| Kubernetes | Overkill — 1 VPS + Docker Compose is enough |
