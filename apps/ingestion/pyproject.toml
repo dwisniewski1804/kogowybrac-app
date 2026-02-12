@@ -1,0 +1,23 @@
+[project]
+name = "kogowybrac-ingestion"
+version = "0.1.0"
+description = "Data ingestion pipeline for kogowybrac.app"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "beautifulsoup4>=4.12.3",
+    "pdfplumber>=0.11.4",
+    "polars>=1.21.0",
+    "pyarrow>=18.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.4",
+    "ruff>=0.9.4",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+

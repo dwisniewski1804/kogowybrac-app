@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Build
+dist/
+target/
+*.class
+
+# Environment
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (local dev)
+data/raw/
+data/json/
+data/parquet/
+
+# Logs
+*.log
+
+# dbt
+apps/warehouse/target/
+apps/warehouse/dbt_packages/
+

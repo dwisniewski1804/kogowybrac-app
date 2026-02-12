@@ -1,0 +1,108 @@
+openapi: "3.1.0"
+info:
+  title: kogowybrac.app API
+  description: Transparentna platforma danych publicznych o kandydatach wyborczych
+  version: "0.1.0"
+  contact:
+    name: kogowybrac.app
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/v1/districts:
+    get:
+      tags: [districts]
+      summary: Lista okręgów wyborczych
+      operationId: listDistricts
+      responses:
+        "200":
+          description: Lista okręgów
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/District"
+                  total:
+                    type: integer
+
+  /api/v1/districts/{id}:
+    get:
+      tags: [districts]
+      summary: Szczegóły okręgu wyborczego
+      operationId: getDistrict
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Okręg znaleziony
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/District"
+        "404":
+          description: Okręg nie znaleziony
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+          example: "0.1.0"
+
+    District:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Okręg nr 1"
+        city:
+          type: string
+          example: "Legnica"
+        seats:
+          type: integer
+          example: 12
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+

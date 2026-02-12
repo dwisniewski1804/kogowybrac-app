@@ -1,0 +1,16 @@
+name: kogowybrac_warehouse
+version: "0.1.0"
+config-version: 2
+
+profile: kogowybrac
+
+model-paths: ["sql"]
+test-paths: ["tests"]
+analysis-paths: ["analysis"]
+seed-paths: ["seeds"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+

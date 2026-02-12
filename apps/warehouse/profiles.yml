@@ -1,0 +1,13 @@
+kogowybrac:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DB_HOST', 'localhost') }}"
+      port: 5432
+      user: "{{ env_var('DB_USER', 'kogowybrac') }}"
+      pass: "{{ env_var('DB_PASSWORD', 'kogowybrac') }}"
+      dbname: "{{ env_var('DB_NAME', 'kogowybrac') }}"
+      schema: public
+      threads: 4
+
