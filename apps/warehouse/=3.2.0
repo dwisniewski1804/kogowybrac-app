@@ -1,0 +1,9 @@
+Collecting psycopg[binary]
+  Downloading psycopg-3.3.2-py3-none-any.whl (212 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 212.8/212.8 KB 2.4 MB/s eta 0:00:00
+Requirement already satisfied: typing-extensions>=4.6 in ./.venv/lib/python3.10/site-packages (from psycopg[binary]) (4.15.0)
+Collecting psycopg-binary==3.3.2
+  Downloading psycopg_binary-3.3.2-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 18.9 MB/s eta 0:00:00
+Installing collected packages: psycopg-binary, psycopg
+Successfully installed psycopg-3.3.2 psycopg-binary-3.3.2

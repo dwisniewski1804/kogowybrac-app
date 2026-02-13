@@ -35,6 +35,23 @@ api-dev: ## Run API locally (without Docker)
 ingestion-install: ## Install ingestion dependencies
 	cd apps/ingestion && pip install -e ".[dev]"
 
+# --- Warehouse (dbt) ---
+
+warehouse-venv: ## Create venv for warehouse
+	cd apps/warehouse && python3 -m venv .venv
+
+warehouse-install: ## Install warehouse dependencies (dbt)
+	cd apps/warehouse && .venv/bin/pip install -r requirements.txt
+
+warehouse-debug: ## Test dbt connection
+	cd apps/warehouse && DB_PORT=5433 .venv/bin/dbt debug --profiles-dir .
+
+warehouse-run: ## Run dbt models
+	cd apps/warehouse && DB_PORT=5433 .venv/bin/dbt run --profiles-dir .
+
+warehouse-init-schema: ## Initialize staging schema
+	cd apps/warehouse && DB_PORT=5433 .venv/bin/python scripts/init_schema.py
+
 # --- Utilities ---
 
 clean: ## Remove volumes and orphans
