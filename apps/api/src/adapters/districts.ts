@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
-// Stub data — w MVP zostanie zastąpione przez query do exposures
+// Stub data — will be replaced by query to exposures in MVP
 const DISTRICTS = [
   { id: 1, name: "Okręg nr 1", city: "Legnica", seats: 12 },
   { id: 2, name: "Okręg nr 2", city: "Wałbrzych", seats: 8 },
@@ -25,7 +25,7 @@ export async function districtRoutes(app: FastifyInstance) {
     {
       schema: {
         tags: ["districts"],
-        description: "Lista okręgów wyborczych",
+        description: "List of electoral districts",
         response: {
           200: {
             type: "object",
@@ -50,7 +50,7 @@ export async function districtRoutes(app: FastifyInstance) {
     {
       schema: {
         tags: ["districts"],
-        description: "Szczegóły okręgu wyborczego",
+        description: "Electoral district details",
         params: {
           type: "object",
           properties: {
@@ -71,7 +71,7 @@ export async function districtRoutes(app: FastifyInstance) {
     async (request, reply) => {
       const district = DISTRICTS.find((d) => d.id === Number(request.params.id));
       if (!district) {
-        return reply.status(404).send({ error: "Okręg nie znaleziony" });
+        return reply.status(404).send({ error: "District not found" });
       }
       return district;
     }
